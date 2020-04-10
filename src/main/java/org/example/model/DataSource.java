@@ -1,4 +1,4 @@
-package org.example;
+package org.example.model;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,12 +12,12 @@ import java.util.Properties;
 public class DataSource {
 
     private String url;
-    private String userName;
+    private String login;
     private String password;
 
-    public DataSource(String url, String userName, String password) {
+    public DataSource(String url, String login, String password) {
         this.url = url;
-        this.userName = userName;
+        this.login = login;
         this.password = password;
     }
 
@@ -26,7 +26,7 @@ public class DataSource {
         try (InputStream inputStream = Files.newInputStream(Paths.get(pathToPropertiesFile))) {
             prop.load(inputStream);
             url = prop.getProperty("url");
-            userName = prop.getProperty("username");
+            login = prop.getProperty("username");
             password = prop.getProperty("password");
         } catch (IOException e) {
             e.printStackTrace();
@@ -34,7 +34,7 @@ public class DataSource {
     }
 
     public Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(url, userName, password);
+        return DriverManager.getConnection(url, login, password);
     }
 
     public void closeConnection(Connection connection) throws SQLException {
@@ -42,27 +42,27 @@ public class DataSource {
         connection.close();
     }
 
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
     public String getUrl() {
         return url;
     }
 
-    public String getUserName() {
-        return userName;
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public String getLogin() {
+        return login;
+    }
+
+    public void setLogin(String login) {
+        this.login = login;
     }
 
     public String getPassword() {
         return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

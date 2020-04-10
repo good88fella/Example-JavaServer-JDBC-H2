@@ -1,49 +1,50 @@
 package org.example.dao;
 
-import org.example.DataSource;
-import org.example.dto.User;
+import org.example.model.DataSource;
+import org.example.model.dto.User;
+import org.example.model.dao.UserDao;
 import org.h2.jdbc.JdbcSQLNonTransientException;
 import org.h2.tools.DeleteDbFiles;
 import org.h2.tools.RunScript;
-import org.h2.tools.Server;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
 
 public class UserDaoTest {
 
     private static final String URL = "jdbc:h2:~/test;AUTO_SERVER=TRUE;Mode=Oracle";
     private static final String USERNAME = "sa";
     private static final String PASSWORD = "";
-    private static final String SQL_SCRIPT_CREATE_TABLE = "src/main/java/org/example/sql/scripts/h2init.sql";
+    private static final String SQL_INIT_TEST = "src/test/java/testscripts/init_test.sql";
 
     private static DataSource dataSource;
     private static UserDao userDao;
 
     @BeforeClass
-    public static void createDB() throws SQLException, FileNotFoundException, ClassNotFoundException {
+    public static void createSources() throws ClassNotFoundException {
         Class.forName("org.h2.Driver");
         dataSource = new DataSource(URL, USERNAME, PASSWORD);
         userDao = new UserDao(dataSource);
-        try (Connection connection = dataSource.getConnection();
-             Statement statement = connection.createStatement()) {
-            RunScript.execute(connection, new FileReader(SQL_SCRIPT_CREATE_TABLE));
-            statement.execute("INSERT INTO users(login, password, email) VALUES('coolLogin', '1234', 'coolEmail@email.ru');");
-            statement.execute("INSERT INTO users(login, password, email) VALUES('anotherLogin', 'qwerty', 'anotherEmail@email.ru');");
-            statement.execute("INSERT INTO users(login, password, email) VALUES('thirdLogin', 'zxcvb', 'thirdEmail@email.ru');");
-        }
     }
 
     @AfterClass
     public static void dropDB() throws SQLException {
         DeleteDbFiles.execute("~", "test", true);
+    }
+
+    @Before
+    public void createTable() throws SQLException, FileNotFoundException {
+        RunScript.execute(dataSource.getConnection(), new FileReader(SQL_INIT_TEST));
+    }
+
+    @After
+    public void dropTable() throws SQLException {
+        try (Connection connection = dataSource.getConnection();
+             Statement statement = connection.createStatement()) {
+            statement.executeUpdate("DROP TABLE users;");
+        }
     }
 
     @Test
@@ -56,7 +57,7 @@ public class UserDaoTest {
     }
 
     @Test
-    public void selectById() {
+    public void selectById() throws SQLException {
         User expectedUser = userDao.selectById(1L);
         User actualUser = new User(1L,"coolLogin", "1234", "coolEmail@email.ru");
         Assert.assertEquals(expectedUser, actualUser);
@@ -64,16 +65,16 @@ public class UserDaoTest {
 
     @Test(expected = JdbcSQLNonTransientException.class)
     public void delete() throws SQLException {
-        userDao.delete(4L);
-        getActualUser(4L);
+        userDao.delete(3L);
+        getActualUser(3L);
     }
 
     @Test
-    public void selectAll() {
+    public void selectAll() throws SQLException {
         User[] actual = {
-        new User(1L,"coolLogin", "1234", "coolEmail@email.ru"),
-        new User(2L, "anotherLogin", "qwerty", "anotherEmail@email.ru"),
-        new User(3L, "thirdLogin", "zxcvb", "thirdEmail@email.ru")
+        new User(1,"coolLogin", "1234", "coolEmail@email.ru"),
+        new User(2, "anotherLogin", "qwerty", "anotherEmail@email.ru"),
+        new User(3, "thirdLogin", "zxcvb", "thirdEmail@email.ru")
         };
         User[] expected = userDao.selectAll().toArray(new User[0]);
         Assert.assertArrayEquals(expected, actual);

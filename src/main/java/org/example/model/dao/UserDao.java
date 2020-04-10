@@ -1,7 +1,7 @@
-package org.example.dao;
+package org.example.model.dao;
 
-import org.example.DataSource;
-import org.example.dto.User;
+import org.example.model.DataSource;
+import org.example.model.dto.User;
 import org.example.interfaces.Dao;
 
 import java.sql.Connection;
@@ -11,7 +11,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UserDao implements Dao<Long, User> {
+public class UserDao implements Dao<User> {
 
     public static final String SQL_SELECT_ALL = "SELECT * FROM " + User.TABLE_NAME;
 
@@ -33,35 +33,31 @@ public class UserDao implements Dao<Long, User> {
     }
 
     @Override
-    public void insert(User user) {
+    public void insert(User user) throws SQLException {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(SQL_INSERT)) {
             preparedStatement.setString(1, user.getLogin());
             preparedStatement.setString(2, user.getPassword());
             preparedStatement.setString(3, user.getEmail());
             preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
     }
 
     @Override
-    public User selectById(Long id) {
-        User user = null;
+    public User selectById(long id) throws SQLException {
+        User user;
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(SQL_SELECT_BY_ID)) {
             preparedStatement.setLong(1, id);
             ResultSet resultSet = preparedStatement.executeQuery();
             resultSet.next();
             user = createUser(resultSet);
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
         return user;
     }
 
     @Override
-    public List<User> selectAll() {
+    public List<User> selectAll() throws SQLException {
         List<User> users = new ArrayList<>();
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(SQL_SELECT_ALL)) {
@@ -70,14 +66,12 @@ public class UserDao implements Dao<Long, User> {
                 User user = createUser(resultSet);
                 users.add(user);
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
         return users;
     }
 
     @Override
-    public void update(User user) {
+    public void update(User user) throws SQLException {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(SQL_UPDATE)) {
             preparedStatement.setString(1, user.getLogin());
@@ -85,19 +79,15 @@ public class UserDao implements Dao<Long, User> {
             preparedStatement.setString(3, user.getEmail());
             preparedStatement.setLong(4, user.getId());
             preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
     }
 
     @Override
-    public void delete(Long id) {
+    public void delete(long id) throws SQLException {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(SQL_DELETE)) {
             preparedStatement.setLong(1, id);
             preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
     }
 

@@ -1,17 +1,18 @@
 package org.example.interfaces;
 
+import java.sql.SQLException;
 import java.util.List;
 
-public interface Dao<K, E> {
+public interface Dao<E> {
 
-    void insert(E entity);
+    void insert(E entity) throws SQLException;
 
-    E selectById(K id);
+    E selectById(long id) throws SQLException;
 
-    List<E> selectAll();
+    List<E> selectAll() throws SQLException;
 
-    void update(E entity);
+    void update(E entity) throws SQLException;
 
-    void delete(K id);
+    void delete(long id) throws SQLException;
 
 }

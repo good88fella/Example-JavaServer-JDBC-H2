@@ -1,9 +1,10 @@
-package org.example.dto;
+package org.example.model.dto;
 
-import java.io.Serializable;
+import org.example.interfaces.Dto;
+
 import java.util.Objects;
 
-public class User implements Serializable {
+public class User implements Dto {
 
     public static final String TABLE_NAME = "users";
     public static final String ID_COLUMN = "user_id";
@@ -11,7 +12,7 @@ public class User implements Serializable {
     public static final String PASSWORD_COLUMN = "password";
     public static final String EMAIL_COLUMN = "email";
 
-    private Long id;
+    private long id;
     private String login;
     private String password;
     private String email;
@@ -25,18 +26,18 @@ public class User implements Serializable {
         this.email = email;
     }
 
-    public User(Long id, String login, String password, String email) {
+    public User(long id, String login, String password, String email) {
         this.id = id;
         this.login = login;
         this.password = password;
         this.email = email;
     }
 
-    public Long getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -78,7 +79,7 @@ public class User implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return id.equals(user.id) &&
+        return id == user.id &&
                 login.equals(user.login) &&
                 password.equals(user.password) &&
                 email.equals(user.email);
